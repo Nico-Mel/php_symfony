@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Model\Task;
+use App\Repository\TaskRepositoryInterface;
 use App\Service\TaskPriorityCalculatorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,7 +19,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class TaskReportCommand extends Command
 {
+    /**
+     * El comando de consola reutiliza EXACTAMENTE las mismas dependencias inyectadas que el controlador web
+     */
     public function __construct(
+        private readonly TaskRepositoryInterface $taskRepository,
         private readonly TaskPriorityCalculatorInterface $priorityCalculator
     ) {
         parent::__construct();
@@ -30,17 +34,10 @@ class TaskReportCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->title('SISTEMA DE GESTIÓN DE TAREAS — SYMFONY 7 CLI');
 
-        $tasks = [
-            new Task('Aprovisionamiento de Infraestructura AWS', 'Instalar PHP 8.4, Composer y extensiones', new \DateTimeImmutable('+2 days')),
-            new Task('Configuración de Seguridad y Firewall UFW', 'Restricción de puertos y permisos de carpeta var/', new \DateTimeImmutable('today')),
-            new Task('Auditoría de Requisitos del Sistema', 'Ejecución del diagnóstico oficial symfony check:req', new \DateTimeImmutable('-2 days')),
-            new Task('Revisión Bibliográfica en Normas APA 7', 'Validación de citas en el documento de investigación', new \DateTimeImmutable('+8 days')),
-            new Task('Diseño de Diapositivas Grupales', 'Elaboración de 12 láminas para la defensa oral', new \DateTimeImmutable('+4 days')),
-            new Task('Planificación de Pruebas Unitarias', 'Mocking de servicios para pruebas automatizadas', new \DateTimeImmutable('+14 days')),
-            new Task('Inspección con Symfony Web Profiler', 'Medición de latencia de endpoints y contenedores', new \DateTimeImmutable('+1 day')),
-            new Task('Optimización de Rendimiento en Linux', 'Configuración de PHP-FPM y precompilación de rutas', new \DateTimeImmutable('+18 days')),
-        ];
+        // Reutilización directa del repositorio
+        $tasks = $this->taskRepository->findAll();
 
+        // Reutilización directa del servicio de cálculo
         $processedTasks = $this->priorityCalculator->processTaskList($tasks);
 
         $table = new Table($output);
@@ -57,8 +54,7 @@ class TaskReportCommand extends Command
         }
 
         $table->render();
-
-        $io->success('Reporte ejecutado satisfactoriamente.');
+        $io->success('Reporte CLI ejecutado satisfactoriamente reutilizando dependencias inyectadas.');
 
         return Command::SUCCESS;
     }
