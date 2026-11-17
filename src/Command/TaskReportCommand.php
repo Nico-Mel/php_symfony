@@ -19,9 +19,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class TaskReportCommand extends Command
 {
-    /**
-     * El comando de consola reutiliza EXACTAMENTE las mismas dependencias inyectadas que el controlador web
-     */
     public function __construct(
         private readonly TaskRepositoryInterface $taskRepository,
         private readonly TaskPriorityCalculatorInterface $priorityCalculator
@@ -34,10 +31,8 @@ class TaskReportCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->title('SISTEMA DE GESTIÓN DE TAREAS — SYMFONY 7 CLI');
 
-        // Reutilización directa del repositorio
         $tasks = $this->taskRepository->findAll();
 
-        // Reutilización directa del servicio de cálculo
         $processedTasks = $this->priorityCalculator->processTaskList($tasks);
 
         $table = new Table($output);

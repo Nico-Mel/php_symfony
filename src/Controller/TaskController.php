@@ -14,18 +14,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class TaskController extends AbstractController
 {
-    /**
-     * Inyección de dependencias desacopladas mediante Autowiring (Constructor Property Promotion)
-     */
     public function __construct(
         private readonly TaskRepositoryInterface $taskRepository,
         private readonly TaskPriorityCalculatorInterface $priorityCalculator
     ) {}
 
-    /**
-     * Vista Web (HTML renderizado con Twig)
-     * Al responder en HTML con </body>, Symfony inyecta automáticamente la Web Profiler Toolbar (barra negra)
-     */
     #[Route('/', name: 'app_home', methods: ['GET'])]
     #[Route('/tasks', name: 'app_tasks_web', methods: ['GET'])]
     public function index(): Response
@@ -38,9 +31,6 @@ class TaskController extends AbstractController
         ]);
     }
 
-    /**
-     * Endpoint API REST (JSON Headless)
-     */
     #[Route('/api/tasks', name: 'api_tasks_list', methods: ['GET'])]
     public function listTasks(): JsonResponse
     {
